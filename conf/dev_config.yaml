@@ -1,0 +1,11 @@
+dataflow_type: conn
+connName: 测试Conn
+addrs: '0.0.0.0:7777,0.0.0.0:7778,0.0.0.0:7779'
+type: redis
+key: userid_orderid_option
+params:
+  args1: value1
+  args2: value2
+load: null
+save:
+  - 测试func1
