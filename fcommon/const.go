@@ -1,7 +1,16 @@
-package common
+package fcommon
 
 const (
-	DataFlowIDTypeFlow = "flow"
+	DataFlowIDTypeFlow      = "flow"
+	DataFlowIDTypeConnector = "conn"
+	DataFlowIDTypeFunction  = "func"
+	DataFlowIDTypeGlobal    = "global"
+	DataFlowIDJoinChar      = "_"
+)
+
+const (
+	FunctionIDFirstVirtual = "FunctionIDFirstVirtual"
+	FunctionIDLastVirtual  = "FunctionIDLastVirtual"
 )
 
 type DataFlowMode string

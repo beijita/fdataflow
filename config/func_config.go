@@ -1,6 +1,6 @@
 package config
 
-import "github.com/fdataflow/common"
+import "github.com/fdataflow/fcommon"
 
 type FParam map[string]string
 
@@ -24,7 +24,7 @@ type FuncConfig struct {
 	Option       FuncOption     `yaml:"option" json:"option"`
 }
 
-func NewFuncConfig(funcName string, mode common.DataFlowMode, source *DataFlowSource, option *FuncOption) *FuncConfig {
+func NewFuncConfig(funcName string, mode fcommon.DataFlowMode, source *DataFlowSource, option *FuncOption) *FuncConfig {
 	var config FuncConfig
 	config.FName = funcName
 	if source == nil {
@@ -32,7 +32,7 @@ func NewFuncConfig(funcName string, mode common.DataFlowMode, source *DataFlowSo
 	}
 	config.Source = *source
 	config.FMode = string(mode)
-	if mode == common.Save || mode == common.Load {
+	if mode == fcommon.Save || mode == fcommon.Load {
 		if option == nil {
 			return nil
 		} else if option.ConnName == "" {
