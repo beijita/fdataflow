@@ -6,6 +6,6 @@ import (
 )
 
 type Flow interface {
-	Run(ctx context.Context)
-	Link(fConf *config.FuncConfig)
+	Run(ctx context.Context) error
+	Link(fConf *config.FuncConfig, fParam config.FParam) error
 }

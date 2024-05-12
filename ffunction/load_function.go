@@ -10,7 +10,7 @@ type LoadFunction struct {
 	BaseFunction
 }
 
-func (f *LoadFunction) Call(ctx context.Context, flow fiface.Flow) {
+func (f *LoadFunction) Call(ctx context.Context, flow fiface.Flow) error {
 	log.Println("LoadFunction Call flow=", flow)
-	return
+	return nil
 }

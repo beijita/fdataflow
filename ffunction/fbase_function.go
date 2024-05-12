@@ -38,7 +38,8 @@ func NewDataFlowFunction(flow fiface.Flow, config *config.FuncConfig) fiface.IFu
 	return f
 }
 
-func (b *BaseFunction) Call(ctx context.Context, flow fiface.Flow) {
+func (b *BaseFunction) Call(ctx context.Context, flow fiface.Flow) error {
+	return nil
 }
 
 func (b *BaseFunction) SetConfig(fc *config.FuncConfig) {

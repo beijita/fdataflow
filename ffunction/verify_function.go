@@ -10,7 +10,7 @@ type VerifyFunction struct {
 	BaseFunction
 }
 
-func (v *VerifyFunction) Call(ctx context.Context, flow fiface.Flow) {
+func (v *VerifyFunction) Call(ctx context.Context, flow fiface.Flow) error {
 	log.Println("VerifyFunction Call flow=", flow)
-	return
+	return nil
 }

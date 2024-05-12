@@ -10,7 +10,7 @@ type ExpandFunction struct {
 	BaseFunction
 }
 
-func (f *ExpandFunction) Call(ctx context.Context, flow fiface.Flow) {
+func (f *ExpandFunction) Call(ctx context.Context, flow fiface.Flow) error {
 	log.Println("ExpandFunction Call flow=", flow)
-	return
+	return nil
 }

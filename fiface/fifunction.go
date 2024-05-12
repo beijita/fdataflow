@@ -6,7 +6,7 @@ import (
 )
 
 type IFunction interface {
-	Call(ctx context.Context, flow Flow)
+	Call(ctx context.Context, flow Flow) error
 	SetConfig(s *config.FuncConfig)
 	GetConfig() *config.FuncConfig
 	SetFlow(f Flow)
