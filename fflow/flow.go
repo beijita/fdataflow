@@ -24,6 +24,14 @@ type DataFlow struct {
 	PrevFunctionID string
 	funcParams     map[string]config.FParam
 	fParamsLock    sync.RWMutex
+
+	buffer    fcommon.DataFlowRowArr
+	data      fcommon.DataFlowDataMap
+	inputData fcommon.DataFlowRowArr
+}
+
+func (flow *DataFlow) CommitRow(row interface{}) error {
+	return nil
 }
 
 func (flow *DataFlow) Run(ctx context.Context) error {
@@ -78,12 +86,13 @@ func (flow *DataFlow) appendFunc(f fiface.IFunction, param config.FParam) error 
 	return nil
 }
 
-func NewDataFlow(conf *config.DataFlowConfig) fiface.Flow {
+func NewDataFlow(conf *config.DataFlowConfig) fiface.IFlow {
 	flow := new(DataFlow)
 	flow.ID = fid.DataFlowID(fcommon.DataFlowIDTypeFlow)
 	flow.Name = conf.FlowName
 	flow.Conf = conf
 	flow.FuncMap = make(map[string]fiface.IFunction)
 	flow.funcParams = make(map[string]config.FParam)
+	flow.data = make(fcommon.DataFlowDataMap)
 	return flow
 }

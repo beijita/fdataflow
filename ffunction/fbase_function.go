@@ -11,12 +11,12 @@ import (
 type BaseFunction struct {
 	ID       string
 	Config   *config.FuncConfig
-	Flow     fiface.Flow
+	Flow     fiface.IFlow
 	NextFunc fiface.IFunction
 	PrevFunc fiface.IFunction
 }
 
-func NewDataFlowFunction(flow fiface.Flow, config *config.FuncConfig) fiface.IFunction {
+func NewDataFlowFunction(flow fiface.IFlow, config *config.FuncConfig) fiface.IFunction {
 	var f fiface.IFunction
 	switch fcommon.DataFlowMode(config.FMode) {
 	case fcommon.Verify:
@@ -38,7 +38,7 @@ func NewDataFlowFunction(flow fiface.Flow, config *config.FuncConfig) fiface.IFu
 	return f
 }
 
-func (b *BaseFunction) Call(ctx context.Context, flow fiface.Flow) error {
+func (b *BaseFunction) Call(ctx context.Context, flow fiface.IFlow) error {
 	return nil
 }
 
@@ -53,11 +53,11 @@ func (b *BaseFunction) GetConfig() *config.FuncConfig {
 	return b.Config
 }
 
-func (b *BaseFunction) SetFlow(f fiface.Flow) {
+func (b *BaseFunction) SetFlow(f fiface.IFlow) {
 	b.Flow = f
 }
 
-func (b *BaseFunction) GetFlow() fiface.Flow {
+func (b *BaseFunction) GetFlow() fiface.IFlow {
 	return b.Flow
 }
 
