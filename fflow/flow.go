@@ -31,6 +31,7 @@ type DataFlow struct {
 }
 
 func (flow *DataFlow) CommitRow(row interface{}) error {
+	flow.buffer = append(flow.buffer, row)
 	return nil
 }
 
@@ -39,11 +40,32 @@ func (flow *DataFlow) Run(ctx context.Context) error {
 	if flow.Conf.Status == int(fcommon.Disable) {
 		return nil
 	}
+
+	flow.PrevFunctionID = fcommon.FunctionIDFirstVirtual
+	err := flow.commitSrcData(ctx)
+	if err != nil {
+		return err
+	}
 	for flowNode != nil {
-		err := flowNode.Call(ctx, flow)
+		flowID := flowNode.GetID()
+		flow.ThisFunction = flowNode
+		flow.ThisFunctionID = flowID
+		inputData, err := flow.getCurData(ctx)
 		if err != nil {
 			return err
 		} else {
+			flow.inputData = inputData
+		}
+
+		err = flowNode.Call(ctx, flow)
+		if err != nil {
+			return err
+		} else {
+			err = flow.commitCurData(ctx)
+			if err != nil {
+				return err
+			}
+			flow.PrevFunctionID = flow.ThisFunctionID
 			flowNode = flowNode.Next()
 		}
 	}
@@ -95,4 +117,50 @@ func NewDataFlow(conf *config.DataFlowConfig) fiface.IFlow {
 	flow.funcParams = make(map[string]config.FParam)
 	flow.data = make(fcommon.DataFlowDataMap)
 	return flow
+}
+
+func (flow *DataFlow) commitSrcData(ctx context.Context) error {
+	dataLen := len(flow.buffer)
+	rowArr := make(fcommon.DataFlowRowArr, 0, dataLen)
+	for _, row := range flow.buffer {
+		rowArr = append(rowArr, row)
+	}
+	flow.clearData(flow.data)
+	flow.data[fcommon.FunctionIDFirstVirtual] = rowArr
+	flow.buffer = flow.buffer[0:0]
+	return nil
+}
+
+func (flow *DataFlow) clearData(dataMap fcommon.DataFlowDataMap) {
+	for k, _ := range dataMap {
+		delete(dataMap, k)
+	}
+}
+
+func (flow *DataFlow) commitCurData(ctx context.Context) error {
+	dataLen := len(flow.buffer)
+	if dataLen == 0 {
+		return nil
+	}
+	rowArr := make(fcommon.DataFlowRowArr, 0, dataLen)
+	for _, row := range flow.buffer {
+		rowArr = append(rowArr, row)
+	}
+	flow.data[flow.ThisFunctionID] = rowArr
+	flow.buffer = flow.buffer[0:0]
+	return nil
+}
+
+func (flow *DataFlow) getCurData(ctx context.Context) (fcommon.DataFlowRowArr, error) {
+	if "" == flow.PrevFunctionID {
+		return nil, errors.New("error flow.PrevFunctionID is blank string ")
+	}
+	if _, ok := flow.data[flow.PrevFunctionID]; !ok {
+		return nil, errors.New("error flow.data is not contain flow.PrevFunctionID ")
+	}
+	return flow.data[flow.PrevFunctionID], nil
+}
+
+func (flow *DataFlow) InputData() fcommon.DataFlowRowArr {
+	return flow.inputData
 }
