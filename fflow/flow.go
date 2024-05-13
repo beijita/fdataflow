@@ -30,6 +30,18 @@ type DataFlow struct {
 	inputData fcommon.DataFlowRowArr
 }
 
+func (flow *DataFlow) GetName() string {
+	return flow.Name
+}
+
+func (flow *DataFlow) GetThisFUnction() fiface.IFunction {
+	return flow.ThisFunction
+}
+
+func (flow *DataFlow) GetThisFuncConf() *config.FuncConfig {
+	return flow.ThisFunction.GetConfig()
+}
+
 func (flow *DataFlow) CommitRow(row interface{}) error {
 	flow.buffer = append(flow.buffer, row)
 	return nil

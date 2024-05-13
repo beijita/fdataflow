@@ -11,4 +11,8 @@ type IFlow interface {
 	Link(fConf *config.FuncConfig, fParam config.FParam) error
 	CommitRow(row interface{}) error
 	InputData() fcommon.DataFlowRowArr
+
+	GetName() string
+	GetThisFUnction() IFunction
+	GetThisFuncConf() *config.FuncConfig
 }
