@@ -32,4 +32,6 @@ type IFlow interface {
 
 	GetFuncParam(key string) string
 	GetFuncParamAll() config.FParam
+
+	Fork(ctx context.Context) IFlow
 }

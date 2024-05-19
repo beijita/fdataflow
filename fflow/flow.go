@@ -40,6 +40,19 @@ type DataFlow struct {
 	metaLock  sync.RWMutex
 }
 
+func (flow *DataFlow) Fork(ctx context.Context) fiface.IFlow {
+	conf := flow.Conf
+	newDataFlow := NewDataFlow(conf)
+	for _, fp := range flow.Conf.Flows {
+		if _, ok := flow.funcParams[flow.FuncMap[fp.FuncName].GetID()]; ok {
+			newDataFlow.Link(flow.FuncMap[fp.FuncName].GetConfig(), fp.Params)
+		} else {
+			newDataFlow.Link(flow.FuncMap[fp.FuncName].GetConfig(), nil)
+		}
+	}
+	return newDataFlow
+}
+
 func (flow *DataFlow) GetFuncParam(key string) string {
 	flow.metaLock.RLock()
 	defer flow.metaLock.RUnlock()
