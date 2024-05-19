@@ -1,6 +1,9 @@
 package config
 
-import "github.com/fdataflow/fcommon"
+import (
+	"fmt"
+	"github.com/fdataflow/fcommon"
+)
 
 type FParam map[string]string
 
@@ -22,6 +25,22 @@ type FuncConfig struct {
 	FMode        string         `yaml:"f_mode" json:"f_mode,omitempty"`
 	Source       DataFlowSource `yaml:"source" json:"source"`
 	Option       FuncOption     `yaml:"option" json:"option"`
+	connConf     *ConnConfig    `yaml:"conn_conf"`
+}
+
+func (fc *FuncConfig) GetConnConf() (*ConnConfig, error) {
+	if fc.connConf == nil {
+		return nil, fmt.Errorf(" GetConnConf error! connConf == nil ")
+	}
+	return fc.connConf, nil
+}
+
+func (fc *FuncConfig) SetConnConf(connConf *ConnConfig) error {
+	if connConf == nil {
+		panic(fmt.Errorf(" SetConnConf error! connConf == nil"))
+	}
+	fc.connConf = connConf
+	return nil
 }
 
 func NewFuncConfig(funcName string, mode fcommon.DataFlowMode, source *DataFlowSource, option *FuncOption) *FuncConfig {
