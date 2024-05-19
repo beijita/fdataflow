@@ -14,6 +14,16 @@ type BaseFunction struct {
 	Flow     fiface.IFlow
 	NextFunc fiface.IFunction
 	PrevFunc fiface.IFunction
+
+	connector fiface.IConnector
+}
+
+func (b *BaseFunction) GetConnector() fiface.IConnector {
+	return b.connector
+}
+
+func (b *BaseFunction) SetConnector(connector fiface.IConnector) {
+	b.connector = connector
 }
 
 func NewDataFlowFunction(flow fiface.IFlow, config *config.FuncConfig) fiface.IFunction {

@@ -19,4 +19,6 @@ type IFunction interface {
 	Prev() IFunction
 	SetN(f IFunction)
 	SetP(f IFunction)
+	GetConnector() IConnector
+	SetConnector(connector IConnector)
 }

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/fdataflow/config"
 	"github.com/fdataflow/fcommon"
+	"github.com/fdataflow/fconn"
 	"github.com/fdataflow/ffunction"
 	"github.com/fdataflow/fid"
 	"github.com/fdataflow/fiface"
@@ -28,6 +29,18 @@ type DataFlow struct {
 	buffer    fcommon.DataFlowRowArr
 	data      fcommon.DataFlowDataMap
 	inputData fcommon.DataFlowRowArr
+}
+
+func (flow *DataFlow) GetConnector() fiface.IConnector {
+	return flow.ThisFunction.GetConnector()
+}
+
+func (flow *DataFlow) GetConnConf() *config.ConnConfig {
+	conn := flow.ThisFunction.GetConnector()
+	if conn == nil {
+		return nil
+	}
+	return conn.GetConfig()
 }
 
 func (flow *DataFlow) GetName() string {
@@ -86,8 +99,19 @@ func (flow *DataFlow) Run(ctx context.Context) error {
 
 func (flow *DataFlow) Link(fConf *config.FuncConfig, fParam config.FParam) error {
 	f := ffunction.NewDataFlowFunction(flow, fConf)
-	flow.appendFunc(f, fParam)
-	return nil
+	if fConf.Option.ConnName != "" {
+		conf, err := fConf.GetConnConf()
+		if err != nil {
+			return err
+		}
+		connector := fconn.NewConnector(conf)
+		err = connector.Init()
+		if err != nil {
+			return err
+		}
+		f.SetConnector(connector)
+	}
+	return flow.appendFunc(f, fParam)
 }
 
 func (flow *DataFlow) appendFunc(f fiface.IFunction, param config.FParam) error {

@@ -15,4 +15,7 @@ type IFlow interface {
 	GetName() string
 	GetThisFUnction() IFunction
 	GetThisFuncConf() *config.FuncConfig
+
+	GetConnector() IConnector
+	GetConnConf() *config.ConnConfig
 }
