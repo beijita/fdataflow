@@ -1,7 +1,8 @@
 package fiface
 
 type Action struct {
-	Abort bool
+	Abort     bool
+	DataReuse bool
 }
 
 type ActionFunc func(ops *Action)
@@ -19,4 +20,8 @@ func LoadActions(acts []ActionFunc) Action {
 
 func ActionAbort(action *Action) {
 	action.Abort = true
+}
+
+func ActionDataReuse(action *Action) {
+	action.DataReuse = true
 }
