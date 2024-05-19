@@ -31,6 +31,17 @@ type DataFlow struct {
 	inputData fcommon.DataFlowRowArr
 }
 
+func (flow *DataFlow) GetFlowConfig() *config.DataFlowConfig {
+	return flow.Conf
+}
+
+func (flow *DataFlow) GetFuncConfigByFuncName(funcName string) *config.FuncConfig {
+	if f, ok := flow.FuncMap[funcName]; ok {
+		return f.GetConfig()
+	}
+	return nil
+}
+
 func (flow *DataFlow) GetConnector() fiface.IConnector {
 	return flow.ThisFunction.GetConnector()
 }
@@ -132,7 +143,7 @@ func (flow *DataFlow) appendFunc(f fiface.IFunction, param config.FParam) error 
 		flow.FlowTail.SetN(f)
 		flow.FlowTail = f
 	}
-	flow.FuncMap[f.GetID()] = f
+	flow.FuncMap[f.GetConfig().FName] = f
 	params := make(config.FParam)
 	for k, v := range f.GetConfig().Option.Params {
 		params[k] = v

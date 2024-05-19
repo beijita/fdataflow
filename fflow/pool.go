@@ -39,6 +39,16 @@ func Pool() *DataFlowPool {
 	return _pool
 }
 
+func (pool *DataFlowPool) GetFlows() []fiface.IFlow {
+	pool.flowLock.RLock()
+	defer pool.flowLock.RUnlock()
+	var flows []fiface.IFlow
+	for _, flow := range pool.flowRouter {
+		flows = append(flows, flow)
+	}
+	return flows
+}
+
 func (pool *DataFlowPool) CaaSInit(name string, conn fiface.ConnInit) {
 	pool.cirLock.Lock()
 	defer pool.cirLock.Unlock()
