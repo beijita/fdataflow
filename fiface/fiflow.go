@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/fdataflow/config"
 	"github.com/fdataflow/fcommon"
+	"time"
 )
 
 type IFlow interface {
@@ -22,4 +23,7 @@ type IFlow interface {
 	GetFuncConfigByFuncName(funcName string) *config.FuncConfig
 
 	Next(acts ...ActionFunc) error
+
+	GetCacheData(key string) interface{}
+	SetCacheData(key string, value interface{}, expireTime time.Duration)
 }

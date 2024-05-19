@@ -9,7 +9,9 @@ import (
 	"github.com/fdataflow/ffunction"
 	"github.com/fdataflow/fid"
 	"github.com/fdataflow/fiface"
+	"github.com/patrickmn/go-cache"
 	"sync"
+	"time"
 )
 
 type DataFlow struct {
@@ -32,6 +34,20 @@ type DataFlow struct {
 
 	act   fiface.Action
 	abort bool
+
+	dataCache *cache.Cache
+}
+
+func (flow *DataFlow) GetCacheData(key string) interface{} {
+	data, ok := flow.dataCache.Get(key)
+	if ok {
+		return data
+	}
+	return nil
+}
+
+func (flow *DataFlow) SetCacheData(key string, value interface{}, expireTime time.Duration) {
+	flow.dataCache.Set(key, value, expireTime)
 }
 
 func (flow *DataFlow) Next(acts ...fiface.ActionFunc) error {
@@ -169,6 +185,7 @@ func NewDataFlow(conf *config.DataFlowConfig) fiface.IFlow {
 	flow.FuncMap = make(map[string]fiface.IFunction)
 	flow.funcParams = make(map[string]config.FParam)
 	flow.data = make(fcommon.DataFlowDataMap)
+	flow.dataCache = cache.New(cache.NoExpiration, fcommon.DefaultFlowCacheCleanUp)
 	return flow
 }
 

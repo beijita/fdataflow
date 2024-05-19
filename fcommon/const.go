@@ -1,5 +1,7 @@
 package fcommon
 
+import "time"
+
 const (
 	DataFlowIDTypeFlow      = "flow"
 	DataFlowIDTypeConnector = "conn"
@@ -38,4 +40,10 @@ const (
 	KAFKA ConnectorType = "kafka"
 	TIDB  ConnectorType = "tidb"
 	ES    ConnectorType = "es"
+)
+
+// cache
+const (
+	DefaultFlowCacheCleanUp               = 5 * time.Minute
+	DefaultExpiration       time.Duration = 0
 )
