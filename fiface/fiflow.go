@@ -26,4 +26,10 @@ type IFlow interface {
 
 	GetCacheData(key string) interface{}
 	SetCacheData(key string, value interface{}, expireTime time.Duration)
+
+	GetMetaData(key string) interface{}
+	SetMetaData(key string, value interface{})
+
+	GetFuncParam(key string) string
+	GetFuncParamAll() config.FParam
 }

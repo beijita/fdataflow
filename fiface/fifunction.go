@@ -21,4 +21,6 @@ type IFunction interface {
 	SetP(f IFunction)
 	GetConnector() IConnector
 	SetConnector(connector IConnector)
+	GetMetaData(key string) interface{}
+	SetMetaData(key string, value interface{})
 }

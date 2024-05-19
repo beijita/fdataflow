@@ -36,6 +36,35 @@ type DataFlow struct {
 	abort bool
 
 	dataCache *cache.Cache
+	metaData  map[string]interface{}
+	metaLock  sync.RWMutex
+}
+
+func (flow *DataFlow) GetFuncParam(key string) string {
+	flow.metaLock.RLock()
+	defer flow.metaLock.RUnlock()
+	if _, ok := flow.funcParams[flow.ThisFunctionID]; !ok {
+		return ""
+	}
+	return flow.funcParams[flow.ThisFunctionID][key]
+}
+
+func (flow *DataFlow) GetFuncParamAll() config.FParam {
+	flow.metaLock.RLock()
+	defer flow.metaLock.RUnlock()
+	return flow.funcParams[flow.ThisFunctionID]
+}
+
+func (flow *DataFlow) GetMetaData(key string) interface{} {
+	flow.metaLock.RLock()
+	defer flow.metaLock.RUnlock()
+	return flow.metaData[key]
+}
+
+func (flow *DataFlow) SetMetaData(key string, value interface{}) {
+	flow.metaLock.Lock()
+	defer flow.metaLock.Unlock()
+	flow.metaData[key] = value
 }
 
 func (flow *DataFlow) GetCacheData(key string) interface{} {
@@ -186,6 +215,7 @@ func NewDataFlow(conf *config.DataFlowConfig) fiface.IFlow {
 	flow.funcParams = make(map[string]config.FParam)
 	flow.data = make(fcommon.DataFlowDataMap)
 	flow.dataCache = cache.New(cache.NoExpiration, fcommon.DefaultFlowCacheCleanUp)
+	flow.metaData = make(map[string]interface{})
 	return flow
 }
 

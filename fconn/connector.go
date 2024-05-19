@@ -15,6 +15,21 @@ type Connector struct {
 	ConnName string
 	Conf     *config.ConnConfig
 	onceInit sync.Once
+
+	metaData map[string]interface{}
+	metaLock sync.RWMutex
+}
+
+func (c *Connector) GetMetaData(key string) interface{} {
+	c.metaLock.RLock()
+	defer c.metaLock.RUnlock()
+	return c.metaData[key]
+}
+
+func (c *Connector) SetMetaData(key string, value interface{}) {
+	c.metaLock.Lock()
+	defer c.metaLock.Unlock()
+	c.metaData[key] = value
 }
 
 func NewConnector(conf *config.ConnConfig) *Connector {
@@ -23,6 +38,7 @@ func NewConnector(conf *config.ConnConfig) *Connector {
 		ConnName: conf.ConnName,
 		Conf:     conf,
 		onceInit: sync.Once{},
+		metaData: make(map[string]interface{}),
 	}
 }
 

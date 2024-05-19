@@ -11,6 +11,9 @@ type IConnector interface {
 	GetID() string
 	GetName() string
 	GetConfig() *config.ConnConfig
+
+	GetMetaData(key string) interface{}
+	SetMetaData(key string, value interface{})
 }
 
 type ConnInit func(conn IConnector) error

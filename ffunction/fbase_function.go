@@ -6,6 +6,7 @@ import (
 	"github.com/fdataflow/fcommon"
 	"github.com/fdataflow/fid"
 	"github.com/fdataflow/fiface"
+	"sync"
 )
 
 type BaseFunction struct {
@@ -16,6 +17,20 @@ type BaseFunction struct {
 	PrevFunc fiface.IFunction
 
 	connector fiface.IConnector
+	metaData  map[string]interface{}
+	metaLock  sync.RWMutex
+}
+
+func (b *BaseFunction) GetMetaData(key string) interface{} {
+	b.metaLock.RLock()
+	defer b.metaLock.RUnlock()
+	return b.metaData[key]
+}
+
+func (b *BaseFunction) SetMetaData(key string, value interface{}) {
+	b.metaLock.Lock()
+	defer b.metaLock.Unlock()
+	b.metaData[key] = value
 }
 
 func (b *BaseFunction) GetConnector() fiface.IConnector {
@@ -45,6 +60,7 @@ func NewDataFlowFunction(flow fiface.IFlow, config *config.FuncConfig) fiface.IF
 	f.CreateID()
 	f.SetConfig(config)
 	f.SetFlow(flow)
+
 	return f
 }
 
