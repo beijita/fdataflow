@@ -143,6 +143,12 @@ func (pool *DataFlowPool) CallFunction(ctx context.Context, name string, flow fi
 				params = append(params, reflect.ValueOf(ctx))
 			} else if isSliceType(argType) {
 				//params = append(params, argType.Elem())
+				value, err := faaSDesc.Serialize.UnMarshal(flow.InputData(), argType)
+				if err != nil {
+				} else {
+					params = append(params, value)
+					continue
+				}
 			} else {
 				params = append(params, reflect.Zero(argType))
 			}

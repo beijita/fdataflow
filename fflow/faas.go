@@ -2,6 +2,8 @@ package fflow
 
 import (
 	"fmt"
+	"github.com/fdataflow/fiface"
+	"github.com/fdataflow/serialize"
 	"reflect"
 	"runtime"
 	"strings"
@@ -11,6 +13,7 @@ import (
 type FaaS interface{}
 
 type FaaSDesc struct {
+	Serialize fiface.ISerialize
 	FnName    string
 	f         interface{}
 	fName     string
@@ -31,6 +34,7 @@ func NewFaaSDesc(fnName string, f FaaS) (*FaaSDesc, error) {
 	}
 	argsType := make([]reflect.Type, funcType.NumIn())
 	fullName := runtime.FuncForPC(funcValue.Pointer()).Name()
+	var serializeImpl fiface.ISerialize
 	var containsDataFlow, containsCtx bool
 	for i := 0; i < funcType.NumIn(); i++ {
 		paramType := funcType.In(i)
@@ -42,6 +46,12 @@ func NewFaaSDesc(fnName string, f FaaS) (*FaaSDesc, error) {
 			itemType := paramType.Elem()
 			if itemType.Kind() == reflect.Ptr {
 				itemType = itemType.Elem()
+			}
+
+			if serialize.IsSerialize(itemType) {
+				serializeImpl = reflect.New(itemType).Interface().(fiface.ISerialize)
+			} else {
+				serializeImpl = serialize.DefaultSerializeInstance
 			}
 		}
 		argsType[i] = paramType
@@ -60,6 +70,7 @@ func NewFaaSDesc(fnName string, f FaaS) (*FaaSDesc, error) {
 		ArgNum:    len(argsType),
 		FuncType:  funcType,
 		FuncValue: funcValue,
+		Serialize: serializeImpl,
 	}, nil
 }
 
