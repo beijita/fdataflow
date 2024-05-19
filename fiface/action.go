@@ -1,9 +1,10 @@
 package fiface
 
 type Action struct {
-	Abort          bool
-	ForceEntryNext bool
-	DataReuse      bool
+	AbortFlag          bool
+	ForceEntryNextFlag bool
+	DataReuseFlag      bool
+	JumpFunc           string
 }
 
 type ActionFunc func(ops *Action)
@@ -20,13 +21,19 @@ func LoadActions(acts []ActionFunc) Action {
 }
 
 func ActionAbort(action *Action) {
-	action.Abort = true
+	action.AbortFlag = true
 }
 
 func ActionDataReuse(action *Action) {
-	action.DataReuse = true
+	action.DataReuseFlag = true
 }
 
 func ActionForceEntryNext(action *Action) {
-	action.ForceEntryNext = true
+	action.ForceEntryNextFlag = true
+}
+
+func ActionJumpFunc(funcName string) ActionFunc {
+	return func(act *Action) {
+		act.JumpFunc = funcName
+	}
 }

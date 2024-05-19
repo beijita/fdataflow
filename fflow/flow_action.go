@@ -2,12 +2,13 @@ package fflow
 
 import (
 	"context"
+	"fmt"
 	"github.com/fdataflow/fiface"
 )
 
 func (flow *DataFlow) dealAction(ctx context.Context, fn fiface.IFunction) (fiface.IFunction, error) {
 	var err error
-	if flow.act.DataReuse {
+	if flow.act.DataReuseFlag {
 		err = flow.commitReuseData(ctx)
 	} else {
 		err = flow.commitCurData(ctx)
@@ -15,9 +16,19 @@ func (flow *DataFlow) dealAction(ctx context.Context, fn fiface.IFunction) (fifa
 	if err != nil {
 		return nil, err
 	}
-	flow.PrevFunctionID = flow.ThisFunctionID
-	fn = fn.Next()
-	if flow.act.Abort {
+	if flow.act.JumpFunc != "" {
+		if _, ok := flow.FuncMap[flow.act.JumpFunc]; !ok {
+			return nil, fmt.Errorf("")
+		}
+		jumpFunc := flow.FuncMap[flow.act.JumpFunc]
+		flow.ThisFunctionID = jumpFunc.GetPreID()
+		fn = jumpFunc
+		flow.abort = false
+	} else {
+		flow.PrevFunctionID = flow.ThisFunctionID
+		fn = fn.Next()
+	}
+	if flow.act.AbortFlag {
 		flow.abort = true
 	}
 	flow.act = fiface.Action{}
@@ -25,7 +36,7 @@ func (flow *DataFlow) dealAction(ctx context.Context, fn fiface.IFunction) (fifa
 }
 
 func (flow *DataFlow) commitReuseData(ctx context.Context) error {
-	if !flow.act.ForceEntryNext && len(flow.data[flow.PrevFunctionID]) == 0 {
+	if !flow.act.ForceEntryNextFlag && len(flow.data[flow.PrevFunctionID]) == 0 {
 		flow.abort = true
 		return nil
 	}
