@@ -47,3 +47,6 @@ const (
 	DefaultFlowCacheCleanUp               = 5 * time.Minute
 	DefaultExpiration       time.Duration = 0
 )
+
+// metrics
+const METRICS_ROUTE = "/metrics"

@@ -7,6 +7,7 @@ import (
 	"github.com/fdataflow/fcommon"
 	"github.com/fdataflow/fiface"
 	"log"
+	"reflect"
 	"sync"
 )
 
@@ -117,12 +118,15 @@ func (pool *DataFlowPool) GetFlow(name string) fiface.IFlow {
 func (pool *DataFlowPool) FaaS(name string, f FaaS) {
 	pool.funcLock.Lock()
 	defer pool.funcLock.Unlock()
-
+	faaSDesc, err := NewFaaSDesc(name, f)
+	if err != nil {
+		return
+	}
 	if _, ok := pool.funcRouter[name]; ok {
 		log.Println("error pool.flowRouter exist flow name=", name)
 		panic(fmt.Sprintf("error pool.flowRouter exist flow name= %s ", name))
 	} else {
-		pool.funcRouter[name] = f
+		pool.funcRouter[name] = faaSDesc
 	}
 }
 
@@ -130,7 +134,25 @@ func (pool *DataFlowPool) CallFunction(ctx context.Context, name string, flow fi
 	pool.funcLock.Lock()
 	defer pool.funcLock.Unlock()
 	if f, ok := pool.funcRouter[name]; ok {
-		return f(ctx, flow)
+		faaSDesc := f.(FaaSDesc)
+		params := make([]reflect.Value, 0, faaSDesc.ArgNum)
+		for _, argType := range faaSDesc.ArgsType {
+			if isFlowType(argType) {
+				params = append(params, reflect.ValueOf(flow))
+			} else if isContextType(argType) {
+				params = append(params, reflect.ValueOf(ctx))
+			} else if isSliceType(argType) {
+				//params = append(params, argType.Elem())
+			} else {
+				params = append(params, reflect.Zero(argType))
+			}
+		}
+		retValues := faaSDesc.FuncValue.Call(params)
+		ret := retValues[0].Interface()
+		if ret == nil {
+			return nil
+		}
+		return ret.(error)
 	}
 	return errors.New("FuncName " + name + " Can not find in NsPool Not Added. ")
 }
