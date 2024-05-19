@@ -29,6 +29,14 @@ type DataFlow struct {
 	buffer    fcommon.DataFlowRowArr
 	data      fcommon.DataFlowDataMap
 	inputData fcommon.DataFlowRowArr
+
+	act   fiface.Action
+	abort bool
+}
+
+func (flow *DataFlow) Next(acts ...fiface.ActionFunc) error {
+	flow.act = fiface.LoadActions(acts)
+	return nil
 }
 
 func (flow *DataFlow) GetFlowConfig() *config.DataFlowConfig {
@@ -72,6 +80,7 @@ func (flow *DataFlow) CommitRow(row interface{}) error {
 }
 
 func (flow *DataFlow) Run(ctx context.Context) error {
+	flow.abort = false
 	flowNode := flow.FlowHead
 	if flow.Conf.Status == int(fcommon.Disable) {
 		return nil
@@ -96,13 +105,10 @@ func (flow *DataFlow) Run(ctx context.Context) error {
 		err = flowNode.Call(ctx, flow)
 		if err != nil {
 			return err
-		} else {
-			err = flow.commitCurData(ctx)
-			if err != nil {
-				return err
-			}
-			flow.PrevFunctionID = flow.ThisFunctionID
-			flowNode = flowNode.Next()
+		}
+		flowNode, err = flow.dealAction(ctx, flowNode)
+		if err != nil {
+			return err
 		}
 	}
 	return nil
@@ -187,6 +193,7 @@ func (flow *DataFlow) clearData(dataMap fcommon.DataFlowDataMap) {
 func (flow *DataFlow) commitCurData(ctx context.Context) error {
 	dataLen := len(flow.buffer)
 	if dataLen == 0 {
+		flow.abort = true
 		return nil
 	}
 	rowArr := make(fcommon.DataFlowRowArr, 0, dataLen)

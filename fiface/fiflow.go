@@ -20,4 +20,6 @@ type IFlow interface {
 	GetConnConf() *config.ConnConfig
 	GetFlowConfig() *config.DataFlowConfig
 	GetFuncConfigByFuncName(funcName string) *config.FuncConfig
+
+	Next(acts ...ActionFunc) error
 }
