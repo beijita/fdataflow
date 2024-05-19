@@ -25,7 +25,7 @@ func (flow *DataFlow) dealAction(ctx context.Context, fn fiface.IFunction) (fifa
 }
 
 func (flow *DataFlow) commitReuseData(ctx context.Context) error {
-	if len(flow.data[flow.PrevFunctionID]) == 0 {
+	if !flow.act.ForceEntryNext && len(flow.data[flow.PrevFunctionID]) == 0 {
 		flow.abort = true
 		return nil
 	}

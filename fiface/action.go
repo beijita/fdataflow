@@ -1,8 +1,9 @@
 package fiface
 
 type Action struct {
-	Abort     bool
-	DataReuse bool
+	Abort          bool
+	ForceEntryNext bool
+	DataReuse      bool
 }
 
 type ActionFunc func(ops *Action)
@@ -24,4 +25,8 @@ func ActionAbort(action *Action) {
 
 func ActionDataReuse(action *Action) {
 	action.DataReuse = true
+}
+
+func ActionForceEntryNext(action *Action) {
+	action.ForceEntryNext = true
 }
